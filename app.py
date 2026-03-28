@@ -50,19 +50,16 @@ if st.button("Predict"):
     st.subheader("Prediction Result")
     st.progress(int(prob * 100))
 
-if prob < 0.5:
-    st.success("🟢 Low Risk")
-elif prob < 0.75:
-    st.warning("🟡 Medium Risk")
-else:
-    st.error("🔴 High Risk")
+    if prob < 0.5:
+        st.success(f"🟢 Low Risk\nProbability: {prob:.2f}")
+    elif prob < 0.75:
+        st.warning(f"🟡 Medium Risk\nProbability: {prob:.2f}")
+    else:
+        st.error(f"🔴 High Risk\nProbability: {prob:.2f}")
 
     st.metric(label="Risk Probability", value=f"{prob*100:.1f}%")
 
-
-# Warning
 st.warning("⚠️ This is an AI-based prediction tool and not a medical diagnosis. Please consult a doctor.")
 
-# Footer
 st.markdown("---")
 st.markdown("Developed by Milan Choudhary | AI Project")
