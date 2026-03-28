@@ -3,11 +3,11 @@ import numpy as np
 import joblib
 import pandas as pd
 
-st.set_page_config(page_title="AI-Based Liver Disease Risk Assessment System", layout="wide")
+st.set_page_config(page_title="Liver Disease Prediction System", layout="wide")
 
 model = joblib.load("liver_model.pkl")
 
-st.title("Liver Disease Prediction System")
+st.title("AI-Based Liver Disease Risk Assessment System")
 st.write("Provide clinical details to estimate liver disease risk.")
 
 st.markdown("---")
