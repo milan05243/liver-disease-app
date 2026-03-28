@@ -2,12 +2,10 @@ import streamlit as st
 import numpy as np
 import joblib
 import pandas as pd
-import shap
-import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Liver Disease Predictor", layout="wide")
 
-model = joblib.load("liver_model.pkl")
+model = joblib.load("model.pkl")
 
 st.title("Liver Disease Prediction System")
 st.write("Provide clinical details to estimate liver disease risk.")
@@ -71,6 +69,24 @@ if predict:
 
     st.markdown("---")
 
+    st.subheader("Input Summary")
+
+    summary = pd.DataFrame({
+        "Parameter": [
+            "Age","Gender","Total Bilirubin","Direct Bilirubin",
+            "Alkaline Phosphotase","ALT","AST",
+            "Total Proteins","Albumin","A/G Ratio"
+        ],
+        "Value": [
+            age, "Male" if gender==1 else "Female", tb, db,
+            alk, alt, ast, tp, alb, ratio
+        ]
+    })
+
+    st.table(summary)
+
+    st.markdown("---")
+
     features = [
         "Age","Gender","Total Bilirubin","Direct Bilirubin",
         "Alkaline Phosphotase","ALT","AST",
@@ -87,25 +103,6 @@ if predict:
 
     st.subheader("Feature Importance")
     st.bar_chart(imp_df.set_index("Feature"))
-
-    st.markdown("---")
-
-    st.subheader("Prediction Explanation")
-
-    explainer = shap.TreeExplainer(model)
-    shap_values = explainer.shap_values(input_data)
-
-    shap_val = shap_values[1][0]
-
-    fig, ax = plt.subplots()
-
-    shap.plots._waterfall.waterfall_legacy(
-        explainer.expected_value[1],
-        shap_val,
-        feature_names=features
-    )
-
-    st.pyplot(fig)
 
 st.markdown("---")
 st.caption("Note: This tool provides an estimate and should not be used as a substitute for medical advice.")
