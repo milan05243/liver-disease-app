@@ -59,11 +59,11 @@ if predict:
     st.progress(int(prob * 100))
 
     if prob < 0.5:
-        st.success("Low Risk")
+        st.success("Patient parameters fall within normal clinical range.")
     elif prob < 0.75:
-        st.warning("Medium Risk")
+        st.warning("Patient parameters fall within normal clinical range.")
     else:
-        st.error("High Risk")
+        st.error("Multiple parameters indicate high liver risk. Medical consultation recommended")
 
     st.write(f"Risk Probability: {prob * 100:.2f}%")
 
