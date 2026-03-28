@@ -5,7 +5,7 @@ import pandas as pd
 
 st.set_page_config(page_title="Liver Disease Predictor", layout="wide")
 
-model = joblib.load("model.pkl")
+model = joblib.load("liver_model.pkl")
 
 st.title("Liver Disease Prediction System")
 st.write("Provide clinical details to estimate liver disease risk.")
