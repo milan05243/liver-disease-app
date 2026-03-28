@@ -2,3 +2,6 @@ streamlit
 numpy
 scikit-learn
 joblib
+shap
+matplotlib
+pandas
