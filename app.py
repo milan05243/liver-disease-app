@@ -1,6 +1,9 @@
 import streamlit as st
 import numpy as np
 import joblib
+import pandas as pd
+import shap
+import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Liver Disease Predictor", layout="wide")
 
@@ -44,8 +47,8 @@ with center_col[1]:
 st.markdown("---")
 
 if predict:
-    bilirubin_ratio = direct_bilirubin / total_bilirubin if total_bilirubin != 0 else 0
-    enzyme_ratio = ast / alt if alt != 0 else 0
+    br = direct_bilirubin / total_bilirubin if total_bilirubin != 0 else 0
+    er = ast / alt if alt != 0 else 0
 
     input_data = np.array([[
         age,
@@ -58,24 +61,61 @@ if predict:
         total_proteins,
         albumin,
         ag_ratio,
-        bilirubin_ratio,
-        enzyme_ratio
+        br,
+        er
     ]])
 
-    probability = model.predict_proba(input_data)[0][1]
+    prob = model.predict_proba(input_data)[0][1]
 
     st.subheader("Prediction Result")
+    st.progress(int(prob * 100))
 
-    st.progress(int(probability * 100))
-
-    if probability < 0.5:
+    if prob < 0.5:
         st.success("Low Risk")
-    elif probability < 0.75:
+    elif prob < 0.75:
         st.warning("Medium Risk")
     else:
         st.error("High Risk")
 
-    st.write(f"Risk Probability: {probability * 100:.2f}%")
+    st.write(f"Risk Probability: {prob * 100:.2f}%")
+
+    st.markdown("---")
+
+    features = [
+        "Age", "Gender", "Total Bilirubin", "Direct Bilirubin",
+        "Alkaline Phosphotase", "ALT", "AST",
+        "Total Proteins", "Albumin", "A/G Ratio",
+        "Bilirubin Ratio", "Enzyme Ratio"
+    ]
+
+    importance = model.feature_importances_
+
+    imp_df = pd.DataFrame({
+        "Feature": features,
+        "Importance": importance
+    }).sort_values(by="Importance", ascending=False)
+
+    st.subheader("Feature Importance")
+    st.bar_chart(imp_df.set_index("Feature"))
+
+    st.markdown("---")
+
+    st.subheader("Prediction Explanation (SHAP)")
+
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(input_data)
+
+    fig, ax = plt.subplots()
+    shap.waterfall_plot(
+        shap.Explanation(
+            values=shap_values[1][0],
+            base_values=explainer.expected_value[1],
+            data=input_data[0],
+            feature_names=features
+        )
+    )
+
+    st.pyplot(fig)
 
 st.markdown("---")
 st.caption("Note: This tool provides an estimate and should not be used as a substitute for medical advice.")
