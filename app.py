@@ -2,18 +2,14 @@ import streamlit as st
 import numpy as np
 import joblib
 
-# Page config
 st.set_page_config(page_title="Liver Predictor", page_icon="🧬", layout="wide")
 
-# Load model
 model = joblib.load("liver_model.pkl")
+imputer = joblib.load("imputer.pkl")
 
-# Title
 st.title("🧠 Liver Disease Prediction System")
 st.markdown("### AI-powered health risk assessment tool")
-st.write("Enter patient details below to predict the likelihood of liver disease.")
 
-# Layout
 col1, col2 = st.columns(2)
 
 with col1:
@@ -31,10 +27,10 @@ with col2:
     ast = st.number_input("AST", value=40)
     ag_ratio = st.number_input("A/G Ratio", value=1.0)
 
-# Predict
 if st.button("Predict"):
-    
-    # 11 FEATURES (last one is dummy)
+    bilirubin_ratio = db / tb if tb != 0 else 0
+    enzyme_ratio = ast / alt if alt != 0 else 0
+
     input_data = np.array([[
         age,
         gender,
@@ -46,20 +42,23 @@ if st.button("Predict"):
         tp,
         alb,
         ag_ratio,
-        0   # 👈 Dummy feature (important fix)
+        bilirubin_ratio,
+        enzyme_ratio
     ]])
+
+    input_data = imputer.transform(input_data)
 
     prob = model.predict_proba(input_data)[0][1]
 
-    st.subheader("🔍 Prediction Result")
+    st.subheader("Prediction Result")
     st.progress(int(prob * 100))
 
     if prob < 0.3:
-        st.success(f"🟢 Low Risk (Healthy)\nProbability: {prob:.2f}")
+        st.success(f"Low Risk\nProbability: {prob:.2f}")
     elif prob < 0.7:
-        st.warning(f"🟡 Medium Risk\nProbability: {prob:.2f}")
+        st.warning(f"Medium Risk\nProbability: {prob:.2f}")
     else:
-        st.error(f"🔴 High Risk (Consult Doctor)\nProbability: {prob:.2f}")
+        st.error(f"High Risk\nProbability: {prob:.2f}")
 
     st.metric(label="Risk Probability", value=f"{prob*100:.1f}%")
 
@@ -68,4 +67,4 @@ st.warning("⚠️ This is an AI-based prediction tool and not a medical diagnos
 
 # Footer
 st.markdown("---")
-st.markdown("👨‍💻 Developed by Milan Choudhary | AI Project")
+st.markdown("Developed by Milan Choudhary | AI Project")
