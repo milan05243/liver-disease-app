@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Liver Disease Predictor", layout="wide")
 
-model = joblib.load("liver_model.pkl")
+model = joblib.load("model.pkl")
 
 st.title("Liver Disease Prediction System")
 st.write("Provide clinical details to estimate liver disease risk.")
@@ -23,9 +23,9 @@ with col1:
     gender = 1 if gender == "Male" else 0
 
     st.subheader("Bilirubin & Enzymes")
-    total_bilirubin = st.number_input("Total Bilirubin", value=0.8)
-    direct_bilirubin = st.number_input("Direct Bilirubin", value=0.2)
-    alkaline_phosphotase = st.number_input("Alkaline Phosphotase", value=180)
+    tb = st.number_input("Total Bilirubin", value=0.8)
+    db = st.number_input("Direct Bilirubin", value=0.2)
+    alk = st.number_input("Alkaline Phosphotase", value=180)
 
 with col2:
     st.subheader("Liver Enzymes")
@@ -33,35 +33,26 @@ with col2:
     ast = st.number_input("AST", value=30)
 
     st.subheader("Protein Levels")
-    total_proteins = st.number_input("Total Proteins", value=7.0)
-    albumin = st.number_input("Albumin", value=4.0)
-    ag_ratio = st.number_input("A/G Ratio", value=1.2)
+    tp = st.number_input("Total Proteins", value=7.0)
+    alb = st.number_input("Albumin", value=4.0)
+    ratio = st.number_input("A/G Ratio", value=1.2)
 
 st.markdown("")
 
-center_col = st.columns([2,1,2])
-with center_col[1]:
+center = st.columns([2,1,2])
+with center[1]:
     predict = st.button("Predict")
 
 st.markdown("---")
 
 if predict:
-    br = direct_bilirubin / total_bilirubin if total_bilirubin != 0 else 0
+    br = db / tb if tb != 0 else 0
     er = ast / alt if alt != 0 else 0
 
     input_data = np.array([[
-        age,
-        gender,
-        total_bilirubin,
-        direct_bilirubin,
-        alkaline_phosphotase,
-        alt,
-        ast,
-        total_proteins,
-        albumin,
-        ag_ratio,
-        br,
-        er
+        age, gender, tb, db, alk,
+        alt, ast, tp, alb, ratio,
+        br, er
     ]])
 
     prob = model.predict_proba(input_data)[0][1]
@@ -81,10 +72,10 @@ if predict:
     st.markdown("---")
 
     features = [
-        "Age", "Gender", "Total Bilirubin", "Direct Bilirubin",
-        "Alkaline Phosphotase", "ALT", "AST",
-        "Total Proteins", "Albumin", "A/G Ratio",
-        "Bilirubin Ratio", "Enzyme Ratio"
+        "Age","Gender","Total Bilirubin","Direct Bilirubin",
+        "Alkaline Phosphotase","ALT","AST",
+        "Total Proteins","Albumin","A/G Ratio",
+        "Bilirubin Ratio","Enzyme Ratio"
     ]
 
     importance = model.feature_importances_
@@ -101,11 +92,19 @@ if predict:
 
     st.subheader("Prediction Explanation")
 
-    explainer = shap.Explainer(model)
-    shap_values = explainer(input_data)
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(input_data)
+
+    shap_val = shap_values[1][0]
 
     fig, ax = plt.subplots()
-    shap.plots.waterfall(shap_values[0], show=False)
+
+    shap.plots._waterfall.waterfall_legacy(
+        explainer.expected_value[1],
+        shap_val,
+        feature_names=features
+    )
+
     st.pyplot(fig)
 
 st.markdown("---")
