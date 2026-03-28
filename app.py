@@ -33,7 +33,21 @@ with col2:
 
 # Predict
 if st.button("Predict"):
-    input_data = np.array([[age, gender, tb, db, alkphos, alt, ast, tp, alb, ag_ratio]])
+    
+    # 11 FEATURES (last one is dummy)
+    input_data = np.array([[
+        age,
+        gender,
+        tb,
+        db,
+        alkphos,
+        alt,
+        ast,
+        tp,
+        alb,
+        ag_ratio,
+        0   # 👈 Dummy feature (important fix)
+    ]])
 
     prob = model.predict_proba(input_data)[0][1]
 
