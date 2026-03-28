@@ -7,7 +7,6 @@ st.set_page_config(page_title="Liver Predictor", page_icon="🧬", layout="wide"
 
 # Load model
 model = joblib.load("liver_model.pkl")
-imputer = joblib.load("imputer.pkl")
 
 # Title
 st.title("🧠 Liver Disease Prediction System")
@@ -32,10 +31,9 @@ with col2:
     ast = st.number_input("AST", value=40)
     ag_ratio = st.number_input("A/G Ratio", value=1.0)
 
-# Predict button
+# Predict
 if st.button("Predict"):
     input_data = np.array([[age, gender, tb, db, alkphos, alt, ast, tp, alb, ag_ratio]])
-    input_data = imputer.transform(input_data)
 
     prob = model.predict_proba(input_data)[0][1]
 
@@ -48,6 +46,11 @@ if st.button("Predict"):
         st.warning(f"🟡 Medium Risk\nProbability: {prob:.2f}")
     else:
         st.error(f"🔴 High Risk (Consult Doctor)\nProbability: {prob:.2f}")
+
+    st.metric(label="Risk Probability", value=f"{prob*100:.1f}%")
+
+# Warning
+st.warning("⚠️ This is an AI-based prediction tool and not a medical diagnosis. Please consult a doctor.")
 
 # Footer
 st.markdown("---")
