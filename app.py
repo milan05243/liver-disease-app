@@ -100,16 +100,24 @@ if predict:
 
     st.markdown("---")
 
-    st.subheader("Prediction Explanation (SHAP)")
+    st.subheader("Prediction Explanation")
 
     explainer = shap.TreeExplainer(model)
     shap_values = explainer.shap_values(input_data)
 
+    if isinstance(shap_values, list):
+        shap_val = shap_values[1][0]
+        base_val = explainer.expected_value[1]
+    else:
+        shap_val = shap_values[0]
+        base_val = explainer.expected_value
+
     fig, ax = plt.subplots()
+
     shap.waterfall_plot(
         shap.Explanation(
-            values=shap_values[1][0],
-            base_values=explainer.expected_value[1],
+            values=shap_val,
+            base_values=base_val,
             data=input_data[0],
             feature_names=features
         )
