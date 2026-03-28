@@ -105,7 +105,7 @@ if predict:
     shap_values = explainer(input_data)
 
     fig, ax = plt.subplots()
-    shap.plots.waterfall(shap_values[0, 0], show=False)
+    shap.plots.waterfall(shap_values[0], show=False)
     st.pyplot(fig)
 
 st.markdown("---")
