@@ -110,3 +110,4 @@ if predict:
 
 st.markdown("---")
 st.caption("Note: This tool provides an estimate and should not be used as a substitute for medical advice.")
+
