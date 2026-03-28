@@ -3,7 +3,7 @@ import numpy as np
 import joblib
 import pandas as pd
 
-st.set_page_config(page_title="Liver Disease Predictor", layout="wide")
+st.set_page_config(page_title="AI-Based Liver Disease Risk Assessment System", layout="wide")
 
 model = joblib.load("liver_model.pkl")
 
